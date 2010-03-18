@@ -2,7 +2,8 @@ module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
         
     class UsaEpayGateway < Gateway
-    	URL = 'https://www.usaepay.com/gate.php'
+      URL = 'https://www.usaepay.com/gate.php'
+      SANDBOX_URL = 'https://sandbox.usaepay.com/gate.php'
       
       self.supported_cardtypes = [:visa, :master, :american_express]
       self.supported_countries = ['US']
@@ -14,6 +15,15 @@ module ActiveMerchant #:nodoc:
         :purchase => 'sale',
         :capture => 'capture'
       }
+      
+      def url
+        case ActiveMerchant::Billing::Base.mode
+        when :sandbox
+          SANDBOX_URL
+        else
+          URL
+        end
+      end
 
       def initialize(options = {})
         requires!(options, :login)
@@ -157,7 +167,7 @@ module ActiveMerchant #:nodoc:
 
       
       def commit(action, parameters)
-        response = parse( ssl_post(URL, post_data(action, parameters)) )
+        response = parse( ssl_post(url, post_data(action, parameters)) )
         
         Response.new(response[:status] == 'Approved', message_from(response), response, 
           :test => @options[:test] || test?,

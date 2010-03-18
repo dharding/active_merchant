@@ -2,6 +2,7 @@ require 'test_helper'
 
 class UsaEpayTest < Test::Unit::TestCase
   def setup
+    ActiveMerchant::Billing::Base.mode = :test
     @gateway = UsaEpayGateway.new(
                 :login => 'LOGIN'
                )
@@ -93,6 +94,15 @@ class UsaEpayTest < Test::Unit::TestCase
     
     response = @gateway.purchase(@amount, @credit_card, @options)
     assert_equal 'M', response.cvv_result['code']
+  end
+  
+  def test_sandbox_mode_url
+    ActiveMerchant::Billing::Base.mode = :test
+    @gateway_on_test = UsaEpayGateway.new(:login => 'LOGIN')
+    assert_equal @gateway_on_test.url, UsaEpayGateway::URL
+    ActiveMerchant::Billing::Base.mode = :sandbox
+    @gateway_on_sandbox = UsaEpayGateway.new(:login => 'LOGIN')
+    assert_equal @gateway_on_sandbox.url, UsaEpayGateway::SANDBOX_URL
   end
 
   private
