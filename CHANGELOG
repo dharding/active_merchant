@@ -1,7 +1,8 @@
 = ActiveMerchant CHANGELOG
 
-* Add JCB and Diners Club to LinkPoint [Soleone]
+* Added support for recurring payments in USA ePay gateway [dharding]
 * Add support for sandbox mode or USA ePay gateway [dharding]
+* Add JCB and Diners Club to LinkPoint [Soleone]
 
 == Version 1.5.1 (February 14, 2010)
 

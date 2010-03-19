@@ -332,6 +332,10 @@ trust_commerce:
 # Working credentials, no need to replace
 usa_epay:
   login: 'yCaWGYQsSVR0S48B6AKMK07RQhaxHvGu'
+
+# You must setup a sandbox developer account to use this
+usa_epay_sandbox:
+  login: 'Your login here'
   
 # Working credentials, no need to replace
 verify:

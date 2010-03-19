@@ -1,8 +1,9 @@
 require 'test_helper'
 
-class RemoveUsaEpayTest < Test::Unit::TestCase
+class RemoteUsaEpayTest < Test::Unit::TestCase
   def setup
     Base.gateway_mode = :test
+    ActiveMerchant::Billing::Base.mode = :test
     @gateway = UsaEpayGateway.new(fixtures(:usa_epay))
     @creditcard = credit_card('4000100011112224')
     @declined_card = credit_card('4000300011112220')
@@ -18,7 +19,7 @@ class RemoveUsaEpayTest < Test::Unit::TestCase
 
   def test_unsuccessful_purchase
     assert response = @gateway.purchase(@amount, @declined_card, @options)
-    assert_equal 'Card Declined', response.message
+    assert_match /^Card Declined/, response.message
     assert_failure response
   end
 
@@ -34,7 +35,7 @@ class RemoveUsaEpayTest < Test::Unit::TestCase
   def test_failed_capture
     assert response = @gateway.capture(@amount, '')
     assert_failure response
-    assert_equal 'Unable to find original transaciton.', response.message
+    assert_equal 'Unable to find original transaction.', response.message
   end
 
   def test_invalid_key
@@ -42,5 +43,18 @@ class RemoveUsaEpayTest < Test::Unit::TestCase
     assert response = gateway.purchase(@amount, @creditcard, @options)
     assert_equal 'Specified source key not found.', response.message
     assert_failure response
+  end
+  
+  def test_recurring_billing
+    ActiveMerchant::Billing::Base.mode = :sandbox
+    sandbox_gateway = UsaEpayGateway.new(fixtures(:usa_epay_sandbox)
+    assert response = sandbox_gateway.recurring(@amount, @creditcard, @options)
+    assert_equal 'Success', response.message
+    assert_success response
+    assert response = sandbox_gateway.recurring(@amount, @creditcard, @options.merge({:start => 'next', :schedule => 'annually'}))
+    assert_equal 'Success', response.message
+    assert_success response
+    # Cannot really confirm anything about this since we would have to look into the payment gateway and usa epay does not offer anything to
+    # do that programatically
   end
 end

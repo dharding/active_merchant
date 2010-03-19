@@ -13,7 +13,8 @@ module ActiveMerchant #:nodoc:
       TRANSACTIONS = {
         :authorization => 'authonly',
         :purchase => 'sale',
-        :capture => 'capture'
+        :capture => 'capture',
+        :recurring => 'sale'
       }
       
       def url
@@ -53,7 +54,20 @@ module ActiveMerchant #:nodoc:
         add_customer_data(post, options)
              
         commit(:purchase, post)
-      end                       
+      end 
+      
+      def recurring(money, credit_card, options = {})
+        post = {}
+        
+        add_amount(post, money)
+        add_invoice(post, options)
+        add_credit_card(post, credit_card)        
+        add_address(post, credit_card, options)   
+        add_customer_data(post, options)
+        add_recurring_data(post, options)
+             
+        commit(:recurring, post)
+      end                     
     
       def capture(money, authorization, options = {})
         post = {
@@ -94,6 +108,12 @@ module ActiveMerchant #:nodoc:
         if options.has_key? :ip
           post[:ip] = options[:ip]
         end        
+      end
+      
+      def add_recurring_data(post, options)
+        post[:addcustomer] = 'Yes'
+        post[:start] = options[:start] || 'next'
+        post[:schedule] = options[:schedule] || 'monthly'
       end
 
       def add_address(post, credit_card, options)
