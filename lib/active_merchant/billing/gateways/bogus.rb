@@ -60,6 +60,10 @@ module ActiveMerchant #:nodoc:
           Response.new(true, SUCCESS_MESSAGE, {:paid_amount => money.to_s}, :test => true)
         end
       end
+      
+      def recurring(money, creditcard, options = {})
+        purchase(money, creditcard, options)
+      end
 
       def void(ident, options = {})
         case ident
